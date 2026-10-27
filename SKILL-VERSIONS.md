@@ -47,7 +47,7 @@
 | --- | --- | --- | --- | --- |
 | github.com/mattpocock/skills | 1.3.1（tag `v1.3.1`） | git 从 GitHub 拉取，checkout `v1.3.1`，把正式技能拷贝到 `~/.agents/skills/` 覆盖（**不用 npx**），不包含in-progress、deprecated等。且在技能废弃时，需要将其删除并告知用户 | 2026-10-05 | 已核实本地与该 tag 逐字节一致（仅 CRLF 换行差异）。由 AI 手动安装。上游技能位于 `skills/<桶>/<技能>/`；本组只取 engineering 20 + productivity 7，**未取** `misc` 4 个与 `in-progress` 7 个。 |
 | github.com/herdrdev/herdr | 未核实 | herdr安装或更新时，自动更新 | 2026-10-05 | 独立来源，单独维护。 |
-| 本地自建（非上游） | — | 直接编辑 `~/.agents/skills/<技能>/SKILL.md`，更新后台账加一行 | 2026-10-22 | 用户自建技能，非 mattpocock/skills 上游：`serial-implement`。 |
+| 本地自建（非上游） | — | 直接编辑 `~/.agents/skills/<技能>/SKILL.md`，更新后台账加一行 | 2026-10-27 | 用户自建技能，非 mattpocock/skills 上游：`serial-implement`。 |
 
 ## 偏好
 
@@ -63,6 +63,7 @@
 | 2026-10-22 | 本地自建 | — | — | `serial-implement` 改为以 spec 为唯一口径，开工前核对 ticket 重心并排除无依据约束 |
 | 2026-10-22 | 本地自建 | — | — | `serial-implement` 探索问题一次问全、笔记带逐 ticket 落点清单并随派发传递；implementer 成批发出互不依赖的读/改 |
 | 2026-10-22 | 本地自建 | — | — | `serial-implement` 简化：口径收拢到第 1 步、开工核对改为派发前自检、审查与修复合并为一节、run 目录按各仓约定（不进版本库即可） |
+| 2026-10-27 | 本地自建 | — | — | `serial-implement` 增加前置探索简报与落点维护 |
 
 ## 备注
 
