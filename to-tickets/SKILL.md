@@ -35,6 +35,25 @@ Break the work into **tracer bullet** tickets.
 
 </vertical-slice-rules>
 
+<slice-sizing>
+
+Judge size by structure, not by diff size: you cannot know the diff before implementing, and line estimates are noise. Four proxies are readable off the ticket while you write it:
+
+- **Acceptance items**: count them. Target 1–5.
+- **Layers touched**: main process / preload / renderer / service or mock / docs. Target at most 2.
+- **Existing contracts to understand** (response envelope, routing table, shared fixture schema). Target at most 2.
+- **Blocking depth**: at most 2 levels, with at most one blocker each (the wide-refactor contract ticket below is the exception).
+
+Merge into a neighbour when: its acceptance items share one code path and one verification command; the only difference is an input value; its sole blocker is the ticket before it and the two can only be accepted together; or it leaves the flow at the same place it was before.
+
+Split when: more than five acceptance items; three or more layers; three or more contracts; or one open question could invalidate the rest — that question becomes a spike ticket (research only, no code).
+
+Four proxies far below their limits mean the slice is too fine: fold it in. When in doubt, merge. A too-fine slice pays a fixed, knowable overhead every time (fresh context, reading ticket and brief, commit and record — minutes per ticket); a too-coarse slice costs a derailed agent and an unreviewable diff.
+
+Calibrate after running the tickets: per ticket, actual tool execution time divided by total ticket time. Below half means fixed overhead dominates and that slice should have been merged next time.
+
+</slice-sizing>
+
 Give each ticket its **blocking edges**: the other tickets that must complete before it can start. A ticket with no blockers can start immediately.
 
 **Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change (rename a column, retype a shared symbol) whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket; green is promised only there.
@@ -49,7 +68,7 @@ Present the proposed breakdown as a numbered list. For each ticket, show:
 
 Ask the user:
 
-- Does the granularity feel right? (too coarse / too fine)
+- Does the granularity feel right? Check each ticket against the sizing limits: at most five acceptance items, two layers, two contracts, one blocker.
 - Are the blocking edges correct: does each ticket only depend on tickets that genuinely gate it?
 - Should any tickets be merged or split further?
 
