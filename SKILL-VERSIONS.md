@@ -45,13 +45,14 @@
 
 | 来源 | 版本 | 更新方式 | 上次核对 | 备注 |
 | --- | --- | --- | --- | --- |
-| github.com/mattpocock/skills | 1.3.1（tag `v1.3.1`） | git 从 GitHub 拉取，checkout `v1.3.1`，把正式技能拷贝到 `~/.agents/skills/` 覆盖（**不用 npx**），不包含in-progress、deprecated等。且在技能废弃时，需要将其删除并告知用户 | 2026-10-05 | 已核实本地与该 tag 逐字节一致（仅 CRLF 换行差异）。由 AI 手动安装。上游技能位于 `skills/<桶>/<技能>/`；本组只取 engineering 20 + productivity 7，**未取** `misc` 4 个与 `in-progress` 7 个。 |
+| github.com/mattpocock/skills | 1.3.1（tag `v1.3.1`） | 先按「偏好」对比并合并本地改动；git 从 GitHub 拉取，checkout 目标 tag（当前 `v1.3.1`），把正式技能合并写入 `~/.agents/skills/`（**不用 npx**），不包含in-progress、deprecated等。且在技能废弃时，需要将其删除并告知用户 | 2026-10-05 | 除 `to-tickets` 的本地改动外与 v1.3.1 一致（仅 CRLF 换行差异）；`to-tickets` 含自建 `slice-sizing` 等，下次更新须合并。由 AI 手动安装。上游技能位于 `skills/<桶>/<技能>/`；本组只取 engineering 20 + productivity 7，**未取** `misc` 4 个与 `in-progress` 7 个。 |
 | github.com/herdrdev/herdr | 未核实 | herdr安装或更新时，自动更新 | 2026-10-05 | 独立来源，单独维护。 |
 | 本地自建（非上游） | — | 直接编辑 `~/.agents/skills/<技能>/SKILL.md`，更新后台账加一行 | 2026-10-27 | 用户自建技能，非 mattpocock/skills 上游：`serial-implement`。 |
 
 ## 偏好
 
 - 技能安装/更新**不使用 `npx` / `skills` CLI**：用 git 从 GitHub 拉取后手动拷贝。
+- **更新外部来源技能时**：先对比本地副本与该来源在台账记录的版本，列出本地自有改动，再合并进新版，**不得直接覆盖**；合并**必须有人参与确认**，动手前要说明合并策略、改动范围与内容。
 - 台账在技能更新时更新。
 
 ## 版本历史
