@@ -4,7 +4,7 @@
 > 结构：上面是「技能 → 来源」索引；下面是「来源列表」，每个来源的版本与**更新方式**写在那里（各来源不同）。
 > 手写内容放在文末「备注」，更新台账时原样保留。
 
-**最近核对:** 2026-10-05
+**最近核对:** 2026-10-29
 **扫描范围:** `~/.agents/skills`（仅此目录）
 
 ## 技能 → 来源
@@ -45,7 +45,7 @@
 
 | 来源 | 版本 | 更新方式 | 上次核对 | 备注 |
 | --- | --- | --- | --- | --- |
-| github.com/mattpocock/skills | 1.3.1（tag `v1.3.1`） | 先按「偏好」对比并合并本地改动；git 从 GitHub 拉取，checkout 目标 tag（当前 `v1.3.1`），把正式技能合并写入 `~/.agents/skills/`（**不用 npx**），不包含in-progress、deprecated等。且在技能废弃时，需要将其删除并告知用户 | 2026-10-05 | 除 `to-tickets` 的本地改动外与 v1.3.1 一致（仅 CRLF 换行差异）；`to-tickets` 含自建 `slice-sizing` 等，下次更新须合并。由 AI 手动安装。上游技能位于 `skills/<桶>/<技能>/`；本组只取 engineering 20 + productivity 7，**未取** `misc` 4 个与 `in-progress` 7 个。 |
+| github.com/mattpocock/skills | 1.3.2（tag `v1.3.2`） | 先按「偏好」对比并合并本地改动；git 从 GitHub 拉取，checkout 目标 tag（当前 `v1.3.2`），把正式技能合并写入 `~/.agents/skills/`（**不用 npx**），不包含in-progress、deprecated等。且在技能废弃时，需要将其删除并告知用户 | 2026-10-29 | 已核实与 v1.3.2 一致（仅 CRLF 换行差异）；`to-tickets` 保留本地 `slice-sizing` 与 granularity 改动，已合并进新版。`grill-me` 在 v1.3.2 仅新增 `agents/openai.yaml`（未拷）。由 AI 手动安装。上游技能位于 `skills/<桶>/<技能>/`；本组只取 engineering 20 + productivity 7，**未取** `misc` 4 个、`in-progress` 7 个与 `deprecated`。 |
 | github.com/herdrdev/herdr | 未核实 | herdr安装或更新时，自动更新 | 2026-10-05 | 独立来源，单独维护。 |
 | 本地自建（非上游） | — | 直接编辑 `~/.agents/skills/<技能>/SKILL.md`，更新后台账加一行 | 2026-10-27 | 用户自建技能，非 mattpocock/skills 上游：`serial-implement`。 |
 
@@ -67,6 +67,7 @@
 | 2026-10-27 | 本地自建 | — | — | `serial-implement` 增加前置探索简报与落点维护 |
 | 2026-10-27 | 本地自建 | — | — | `serial-implement` 简化：简报作为唯一落点来源，去掉 run 目录与重复的落点传递 |
 | 2026-10-27 | 本地自建 | — | — | `serial-implement` 探索改为单 agent；收敛暂停点与简报目录规则 |
+| 2026-10-29 | mattpocock/skills | 1.3.1 | 1.3.2 | 按合并规则同步 27 个技能；19 个上游文件更新，`to-tickets` 的 `slice-sizing` 与 granularity 本地改动已合并保留 |
 
 ## 备注
 
