@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Serial Implement
 
-把用户传入的一批 ticket **串行**实现到一条 integration branch 上：派发前以 spec 核对验收项、排除 agent 自加的约束；全部完成后**统一审查一次**、按预算自动修复，最后把**逐 ticket 的提交**和**一个审查修复 commit** 本地合回主分支（`--no-ff`，保留集成分支）。
+把用户传入的一批 ticket **串行**实现到一条 integration branch 上：派发前以 spec 核对验收项、排除 agent 自加的约束；全部完成后**统一审查一次**、按预算自动修复，最后把**逐 ticket 的提交**与**修复提交**本地合回主分支（`--no-ff`，保留集成分支）。
 
 开工前先按需探索，产出一份**共享简报**，让每个 implementer 不必重复摸代码库。
 
@@ -26,7 +26,7 @@ ticket 形式同 `to-tickets` 产出：每条含「要构建什么」「blocked 
 
 ### 2. 探索与简报
 
-implementer 是全新上下文，主 agent 读过的东西不会自动传过去。本步的交付物是**一份简报**，不是「探索」；探索只是填充简报的方式。
+implementer 是全新上下文，主 agent 读过的东西不会自动传过去。本步的交付物是**一份简报**，不是「探索」；探索只是填充简报的方式。复用已完成的子智能体（第 4 步）省的是读文件的冷启动，简报与已排除清单仍要整份重发。
 
 **判断**：逐条 ticket 自问能否说出落点（相关文件/入口、现有测试、构建-测试命令、模块约定）。
 
@@ -58,18 +58,21 @@ implementer 是全新上下文，主 agent 读过的东西不会自动传过去�
 
 ### 4. 串行实现
 
-逐个 ticket 派一个 **implementer 子智能体**，直接写在这条 integration branch 上（不开 worktree、不另建分支、不 merge）。传给它的上下文：该 ticket、spec 的相关段落与指针、**简报绝对路径**（本 ticket 的落点读简报里对应小节；缺了就派发前补齐）、「已排除，不要实现」累积清单。
+逐个 ticket 派发实现工作——新开一个 **implementer 子智能体**，或复用本轮已完成的子智能体（见下）——直接写在这条 integration branch 上（不开 worktree、不另建分支、不 merge）。传给它的上下文：该 ticket、spec 的相关段落与指针、**简报绝对路径**（本 ticket 的落点读简报里对应小节；缺了就派发前补齐）、「已排除，不要实现」累积清单。
+
+**派发前选人**：用 `python3 <本技能目录>/scripts/context_usage.py --candidates`（默认取环境变量 `OPENCODE_SESSION_ID`；Windows 上 `python3` 落到 Store 占位符时改用 `uv run python`；筛选与排序口径见 `--help`）。满足两条才复用：`percent` < 20 且 `why` 为空，并且你判断它现有上下文对本 ticket 有帮助（读过本票落点，或刚在同一区域收工）。没有合格候选（含查不到：脚本非 0 退出、环境不支持）就新开，并在完成报告里记一行。
+
+**复用的派发消息**（常规内容之外必须包含）：这是新 ticket、验收项以本条为准、上一张票的结论只作参考；整份「已排除」清单；运行中发现上下文超过窗口 70% 就停下报告，不要带病跑完。
 
 **派发前先核口径（父会话做，不占 implementer 的回合）**：逐条给验收项标 spec 来源——有依据的照做，无依据的排除并记入「已排除」清单，两种解释都成立才算**不确定**。不确定项暂停整条串行，一次性列给用户并附推荐答案；实现细节（命名、复用哪个 helper、文件放哪）不属于范围，由 implementer 自行决定。纯技术改动只要不改变行为，可以 ticket 为口径，报告标注「无 spec 依据」。
 
 implementer 开工约定：
 
-- 开工前记下当前 HEAD；
 - 开工前先读简报（绝对路径由主 agent 传入），重点看本 ticket 的落点与共享约定。需要的东西大概率已在简报里；你仍可打开或搜索任何需要的文件，只是不必从零重走一遍大范围探索；
 - 一批互不依赖的读取/改动合并到**一条消息**里发出：同一文件的不同方法、互不相关的多个文件都属于这一类；写测试 → 跑 → 改实现这种有依赖的步骤仍分回合；
 - 只合并互不重叠的 hunk——两条 `edit` 改同一段代码时，后一条的 `oldString` 已被前一条改掉，白跑一个回合；
 - 调 Skill 工具以 `tdd` 构建该 ticket；
-- 完成时把本 ticket 的提交压成**一个** commit（`git reset --soft <开工前 HEAD>` 后重新提交），消息为 `<ticket-id>: <标题>`；
+- 完成后提交，消息为 `<ticket-id>: <标题>`；提交前用 `git status` / `git show --stat` 核对只含本票文件，出现别票改动或上一票残留就停下报告，不要顺手提交；
 - ticket 无代码改动则跳过，不建空 commit；
 - 完工前维护简报：简报与代码不符时以代码为准；本 ticket 改了落点（重命名/移动/删除/新增可复用文件）→ 原地改受影响的后继 ticket 落点（含新增）；非落点的新事实（约定变了、新坑）→ 追加到「更正」；后续 ticket 发现简报不对也可顺手更正。不重写整份简报；
 - 报告完成，并写明「简报已更新：<哪些落点/更正>」或「无需更新」；
@@ -77,7 +80,7 @@ implementer 开工约定：
 
 一个完成，才开下一个。本 ticket 的排除项并入累积清单，随上下文传给后续 implementer。主 agent 信任 implementer 的简报更新报告，不逐条复核。
 
-**完成判据**：每个 ticket 的验收项都在派发前核过口径；排除项未被实现；每个 ticket 恰好一个 commit，消息符合 `<ticket-id>: <标题>`；简报已按需更新并在报告中声明。
+**完成判据**：每个 ticket 的验收项都在派发前核过口径；排除项未被实现；每票完成后已提交、消息为 `<ticket-id>: <标题>`，且提交里没有别票的改动；简报已按需更新并在报告中声明。
 
 ### 5. 审查与修复（最多 2 轮）
 
@@ -92,7 +95,7 @@ implementer 开工约定：
 
 其余一律跳过：纯判断类 baseline 坏味道、风格偏好、推测性泛化、重构代价大而无行为收益。修复前按第 1 步的口径核对：finding 必须能追溯到 spec，spec 从未写明就停下列给用户，不直接修。
 
-修复由 implementer 子智能体做；它修不动就**新开**一个（干净上下文，带 ticket + 剩余 finding + 分支指针）。修复提交留在 integration branch，第 6 步统一压成一个 commit。
+修复由 implementer 子智能体做，优先复用该 finding 所属 ticket 的 implementer（同一张票的 findings，正是它上下文里有用的部分）；修不动就**新开**一个（带 ticket + 剩余 finding + 分支指针）。修复提交留在 integration branch，第 6 步压成一个 `fix:` 提交。
 
 **复核与预算**：全局最多 2 轮（一轮修复 + 一轮复核）。复核只验上一轮的 finding；新发现仅限 hard violation 或正确性 bug，判断类记录给用户，不再开新 finding。预算用尽、或同一个问题追不动时，停下列给用户，不扩轮、不扩范围；剩余项用用户的语言重新编号交用户决定。
 
@@ -100,7 +103,8 @@ implementer 开工约定：
 
 ### 6. 本地收尾
 
-1. 若 review 修复产生过提交，在 integration branch 上 `git reset --soft <最后一个 ticket commit>`，再提交为**一个** `fix: code-review 修复（N 项）`；无 finding 时跳过。
-2. 切回主分支 `git merge --no-ff <integration-branch>`，保留集成分支；冲突或异常时停下交用户，不在合并过程中顺手改代码。
+合并前，把 review 修复产生的提交全部压成一个，消息为 `fix: code-review 修复（N 项）`；没有修复提交则跳过。压缩只作用于修复段，逐 ticket 的提交不动。
+
+切回主分支 `git merge --no-ff <integration-branch>`，保留集成分支；冲突或异常时停下交用户，不在合并过程中顺手改代码。
 
 **完成判据**：主分支历史为「逐 ticket commit → `fix: code-review 修复（N 项）`（若有）→ merge commit」；报告 merge commit、逐 ticket commit 列表、改动摘要，以及**排除项汇总、spec 冲突记录、标为「无 spec 依据」的 ticket**。不 push、不开 PR。
