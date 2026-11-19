@@ -58,9 +58,12 @@ implementer 是全新上下文，主 agent 读过的东西不会自动传过去�
 
 ### 4. 串行实现
 
+> **派发前闸门（每票必过）**：派发前先跑候选筛选 `uv run python <本技能目录>/scripts/context_usage.py --candidates`（默认取 `OPENCODE_SESSION_ID`；非 Windows 用 `python3`）。合格候选 = `why` 为空且 `percent` < 20，或 `why` 为 `limit-unknown` 且 `context` ≤ 150000，且你对「现有上下文对本 ticket 有帮助」的判断成立（口径见下）。
+> 没有合格候选（含脚本非 0 退出、环境不支持）、或判断为不复用，都要在完成报告里写明原因。**未做这一步视为该票未完成。**
+
 逐个 ticket 派发实现工作——新开一个 **implementer 子智能体**，或复用本轮已完成的子智能体（见下）——直接写在这条 integration branch 上（不开 worktree、不另建分支、不 merge）。传给它的上下文：该 ticket、spec 的相关段落与指针、**简报绝对路径**（本 ticket 的落点读简报里对应小节；缺了就派发前补齐）、「已排除，不要实现」累积清单。
 
-**派发前选人**：用 `python3 <本技能目录>/scripts/context_usage.py --candidates`（默认取环境变量 `OPENCODE_SESSION_ID`；Windows 上 `python3` 落到 Store 占位符时改用 `uv run python`）。脚本只做机械筛（运行中、无 token 记录、只读 agent，被筛掉的原因汇总在 stderr），并给出事实：`context`、`limit`、`limit_source`、`percent`、`why`。满足下列之一才复用：`why` 为空且 `percent` < 20；或 `why` 为 `limit-unknown` 且 `context` ≤ 150000。此外仍需你判断它现有上下文对本 ticket 有帮助（读过本票落点，或刚在同一区域收工）。没有合格候选（含查不到：脚本非 0 退出、环境不支持）就新开，并在完成报告里记一行。
+**复用判断**：机械筛（运行中、无 token 记录、只读 agent，被筛掉的原因汇总在 stderr）与事实字段（`context`、`limit`、`limit_source`、`percent`、`why`）由脚本给出，闸门只认上面那条合格线。线内还要判断上下文相关性：上一票刚改过同一批文件或同一模块，就优先复用该会话，而不是新开。同一张票的修复/补丁是例外——必须回打原会话（第 5 步），不新开。
 
 **复用的派发消息**（常规内容之外必须包含）：这是新 ticket、验收项以本条为准、上一张票的结论只作参考；整份「已排除」清单。
 
@@ -78,9 +81,9 @@ implementer 开工约定：
 - 报告完成，并写明「简报已更新：<哪些落点/更正>」或「无需更新」；
 - 简报缺失/读不到 → 先报告主 agent 补齐；你可以同时自行看需要的文件，把关键发现回报，避免后续 ticket 重复。
 
-一个完成，才开下一个。本 ticket 的排除项并入累积清单，随上下文传给后续 implementer。主 agent 信任 implementer 的简报更新报告，不逐条复核。
+一个完成，才开下一个。本 ticket 的排除项并入累积清单，随上下文传给后续 implementer。主 agent 每票的完成报告附一行固定字段 `复用决策：复用 <sessionID>（占用 X%）/ 新开（原因）`，与 implementer 的「简报已更新」一并落档；主 agent 信任该报告，不逐条复核。
 
-**完成判据**：每个 ticket 的验收项都在派发前核过口径；排除项未被实现；每票完成后已提交、消息为 `<ticket-id>: <标题>`，且提交里没有别票的改动；简报已按需更新并在报告中声明。
+**完成判据**：每个 ticket 的验收项都在派发前核过口径；排除项未被实现；每票完成后已提交、消息为 `<ticket-id>: <标题>`，且提交里没有别票的改动；简报已按需更新并在报告中声明；每票的复用决策已写明。
 
 ### 5. 审查与修复（最多 2 轮）
 
