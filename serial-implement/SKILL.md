@@ -60,9 +60,9 @@ implementer 是全新上下文，主 agent 读过的东西不会自动传过去�
 
 逐个 ticket 派发实现工作——新开一个 **implementer 子智能体**，或复用本轮已完成的子智能体（见下）——直接写在这条 integration branch 上（不开 worktree、不另建分支、不 merge）。传给它的上下文：该 ticket、spec 的相关段落与指针、**简报绝对路径**（本 ticket 的落点读简报里对应小节；缺了就派发前补齐）、「已排除，不要实现」累积清单。
 
-**派发前选人**：用 `python3 <本技能目录>/scripts/context_usage.py --candidates`（默认取环境变量 `OPENCODE_SESSION_ID`；Windows 上 `python3` 落到 Store 占位符时改用 `uv run python`；筛选与排序口径见 `--help`）。满足两条才复用：`percent` < 20 且 `why` 为空，并且你判断它现有上下文对本 ticket 有帮助（读过本票落点，或刚在同一区域收工）。没有合格候选（含查不到：脚本非 0 退出、环境不支持）就新开，并在完成报告里记一行。
+**派发前选人**：用 `python3 <本技能目录>/scripts/context_usage.py --candidates`（默认取环境变量 `OPENCODE_SESSION_ID`；Windows 上 `python3` 落到 Store 占位符时改用 `uv run python`）。脚本只做机械筛（运行中、无 token 记录、只读 agent，被筛掉的原因汇总在 stderr），并给出事实：`context`、`limit`、`limit_source`、`percent`、`why`。满足下列之一才复用：`why` 为空且 `percent` < 20；或 `why` 为 `limit-unknown` 且 `context` ≤ 150000。此外仍需你判断它现有上下文对本 ticket 有帮助（读过本票落点，或刚在同一区域收工）。没有合格候选（含查不到：脚本非 0 退出、环境不支持）就新开，并在完成报告里记一行。
 
-**复用的派发消息**（常规内容之外必须包含）：这是新 ticket、验收项以本条为准、上一张票的结论只作参考；整份「已排除」清单；运行中发现上下文超过窗口 70% 就停下报告，不要带病跑完。
+**复用的派发消息**（常规内容之外必须包含）：这是新 ticket、验收项以本条为准、上一张票的结论只作参考；整份「已排除」清单。
 
 **派发前先核口径（父会话做，不占 implementer 的回合）**：逐条给验收项标 spec 来源——有依据的照做，无依据的排除并记入「已排除」清单，两种解释都成立才算**不确定**。不确定项暂停整条串行，一次性列给用户并附推荐答案；实现细节（命名、复用哪个 helper、文件放哪）不属于范围，由 implementer 自行决定。纯技术改动只要不改变行为，可以 ticket 为口径，报告标注「无 spec 依据」。
 
